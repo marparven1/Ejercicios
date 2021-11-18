@@ -1,0 +1,188 @@
+---
+title: "Ejercicio 11"
+author: "Marta Venegas Pardo"
+date: "18/11/2021"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+    toc: true
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(457367)
+```
+
+
+```{r configuracion, include=FALSE}
+precision_resultados <- 5
+```
+
+Consideremos el grafo no dirigido. Se tiene que las longitudes
+$X_i \sim U(0,a_i),$ con $a_1=1,a_2=2,a_3=3,a_4=1,a_5=2$, son
+independientes. Si denotamos $X=(X_1,\dots , X_5)$, entonces el valor
+$l=E[g(X)]$, con
+\[g(X)= min (X_1 + X_4 , X_1+X_3 + X_5 , X_2 + X_3 + X_4 , X_2 + X_5 )\]
+
+es el valor esperado de la longitud del camino más corto entre los nodos
+A y D.
+
+Se pide: *Estimar el valor de l*
+
+```{r  echo=FALSE}
+knitr::kable(
+  data.frame(
+    Tarea = paste(
+      1:4,
+      c(
+        "A",
+        "B",
+        "C",
+        "D"
+      )
+    ),
+    Dependencias = c(
+      "Ninguna",
+      "Ninguna",
+      "Ninguna",
+      "Ninguna"
+    )
+  )
+)
+```
+
+# Gráfo no dirigido
+
+Podemos representar entonces el proyecto mediante el siguiente diagrama
+en el que los nodos representan las tareas y los ejes las longitudes
+entre ellas:
+
+![](Captura%20de%20pantalla%202021-11-16%20a%20las%2014.14.55.png)
+
+
+
+```{r PERT-diagrama, echo=FALSE, message=FALSE}
+library(ggdag)
+library(dagitty)
+dag <- dagitty::dagitty('dag {
+  A [latent, pos="0, 0"]
+  B [latent, pos="1, 1"]
+  C [latent, pos="1, -1"]
+  D [latent, pos="2, 0"]
+  A -> B
+  B -> C
+  A -> C
+  B -> D
+  C -> D
+  A <- B
+  B <- C
+  A <- C
+  B <- D
+  C <- D
+  }')
+
+dag %>%
+  tidy_dagitty() %>%
+  ggdag() +
+  labs(x = "", y = "") +
+  scale_x_continuous(breaks = NULL, limits = c(-.25, 2.25)) +
+  scale_y_continuous(breaks = NULL, limits = c(-1.25, 1.25))
+```
+
+-   A-B: X_1
+-   A-C: X_2
+-   B-C: X_3
+-   B-D: X_4
+-   C-D: X_5
+
+Las longitudes medias son las siguientes:
+
+
+```{r}
+a<-c(1,2,3,1,2)
+longitudes_medias<- a
+```
+
+
+# Objetivo
+
+Consideramos que realmente se tienelas longitudes $X_i \sim U(0,a_i),$
+con $a_1=1,a_2=2,a_3=3,a_4=1,a_5=2$, son independientes.
+
+**Nuestro problema es, entonces, estimar** $l=E[g(X)]$ bajo esas
+condiciones,con
+$$ g(X)= min (X_1 + X_4 , X_1+X_3 + X_5 , X_2 + X_3 + X_4 , X_2 + X_5 )$$
+
+Queremos estimar el valor de la longitud del camino mas corto entre los
+nodos A y D
+
+# Estimación con Método de montecarlo
+
+## Generación
+
+Para realizar esa estimación mediante el método de Montecarlo, definimos en primer lugar una función que genera la longitud aleatoria de cada uno de los caminos entre los nodos A y D y una función que calcula el valor de $g(x)$.
+
+```{r generacion-1}
+genera_vector_aleatorio <- function(l) {
+  x_1 <- runif(1,min=0,max=l[1])
+  x_2 <- runif(1,min=0,max=l[2])
+  x_3 <- runif(1,min=0,max=l[3])
+  x_4 <- runif(1,min=0,max=l[4])
+  x_5 <- runif(1,min=0,max=l[5])
+  return (c(x_1,x_2,x_3,x_4,x_5))
+  }
+  
+g<- function(x) { 
+  x_1<- x[1]
+  x_2<- x[2]
+  x_3<- x[3]
+  x_4<- x[4]
+  x_5<- x[5]
+  min(x_1+x_4,x_1+x_3+x_5,x_2+x_3+x_4,x_2+x_5)
+}
+```
+
+## Replicación
+
+A continuación, replicamos una cantidad de veces parametrizada por la
+variable `n` el proceso de generar duraciones aleatorias de las tareas,
+según la distribución exponencial que corresponda, y calcular la
+duración total del proyecto.
+
+```{r replicacion-1}
+n <- 1e5
+
+valores_g <- replicate(n, {
+  x<-genera_vector_aleatorio(longitudes_medias)
+  g(x)
+})
+```
+
+## Estimación
+
+Finalmente, calculamos una estimación y un intervalo de confianza para
+la longitud mínima esperada entre los nodos A y D.
+
+```{r estimacion-1}
+estimacion_longitud <- mean(valores_g) # estimación
+
+# IC
+probabilidad_cobertura <- 0.997
+alfa <- 1 - probabilidad_cobertura
+percentil <- qnorm(1 - alfa / 2)
+error_estandar <- sqrt(var(longitudes_medias) / n)
+intervalo_confianza <-
+  estimacion_longitud + c(-1, 1) * error_estandar * percentil
+```
+
+## Solución
+
+Hemos obtenido entonces una estimación de
+$`r round(estimacion_longitud , digits = precision_resultados)`$
+la longitud media del camino más corto entre los nodos A y D, siendo
+$(`r round(intervalo_confianza, digits = precision_resultados)`)$ un
+intervalo de confianza con probabilidad de cobertura
+$`r probabilidad_cobertura`$.

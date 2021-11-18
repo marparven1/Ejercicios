@@ -1,0 +1,503 @@
+---
+title: "Ejercicio 1"
+subtitle: "Técnicas de Computación para la Estadística"
+author: "Marta Venegas Pardo"
+output: 
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+    toc: true
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(457367)
+```
+
+
+
+
+Estimarr el valor de: $$I =
+  \int_{0}^{1} x^2 \sqrt{1-x^2}  \,dx = \dfrac{\pi}{16} \simeq 0,1963495408493621$$
+
+# Método Montecarlo
+Para estimar esta integral mediante el Método de Montecarlo, hay que
+poner la integral como una esperanza de x.
+
+Es decir: $I=E[g(X)]$, donde X es una variable uniforme en el intervalo
+(0,1) y g(x) = $x^2 \sqrt{1-x^2}$.
+
+
+
+1. Establecemos la forma de generar valores aleatorios, en este caso de manera uniforme en el intervalo \((0, 1)\).
+
+2. Definimos la función \( g \) que deberá aplicarse a esos valores aleatorios.
+
+```{r generacion}
+genera_valor_aleatorio <- function() {
+  runif(1)
+}
+
+
+
+g <- function(x) {
+  sqrt((1 - x^2))*x^2
+}
+```
+
+3. Replicamos el proceso de generar un valor aleatorio y aplicarle la función \( g \). La variable `n` determina la cantidad de replicaciones.
+
+```{r replicacion}
+n <- 1e5
+valores_g <- replicate(n , {
+  x <- genera_valor_aleatorio()
+  g(x)
+}
+)
+```
+
+
+
+4. Calculamos una estimación de \( I_{1} \) a partir de la media aritmética de los valores obtenidos.
+
+```{r}
+estimacion <- mean(valores_g)
+```
+
+El valor estimado de $I$ es $`r estimacion`$. Este método siempre dará
+una aproximación, mejor o peor pero se trata de una aproximación.
+
+Puesto que esto es un resultado aleatorio, hay que calcular siempre un
+intervalo de confianza que permita acotar la variabilidad de la
+estimación.
+
+
+```{r}
+probabilidad_cobertura <- 0.997
+alfa <- 1 - probabilidad_cobertura
+percentil<- qnorm(1 - alfa / 2)
+error_estandar <- sqrt(var(valores_g)/n)
+intervalo_confianza <- estimacion + c(-1,1) * error_estandar * percentil
+```
+
+Luego, un intervalo de confianza con probabilidad de cobertura 0.997 es
+( $`r intervalo_confianza`$ )
+
+# Reducción de Varianza por Antitéticas
+
+
+Cáculamos la varianza y la eficiencia del Método de Newton para compararlo con las demás varianzas y eficiencias.
+
+Estimaremos también el coste en tiempo del método haciendo uso de las herramientas proporcionadas por el paquete `bench` (en particular, la función `mark` analiza el coste en tiempo y en memoria de las expresiones proporcionadas, ejecutando cada una de ellas un cierto número de iteraciones y devolviendo una tabla con distintas medidas, entre ellas la mediana de los tiempos de ejecución de cada iteración). De esta forma, podremos estimar la eficiencia del método directo a la hora de estimar el valor de la integral.
+
+```{r Montecarlo-directo, warning=FALSE}
+genera_valor_aleatorio <- function() {
+  runif(1)
+}
+
+g <- function(x) {
+  (x^2)*(sqrt(1 - x^2))
+}
+
+n <- 1e4
+coste_directo <- bench::mark({
+  valores_g <- replicate(n, {
+    x <- genera_valor_aleatorio()
+    g(x)
+  })
+},
+iterations = 10,
+time_unit = "ms"
+)$median
+
+estimacion_directo <- mean(valores_g)
+varianza_directo <- var(valores_g) / n
+
+eficiencia_directo <- 1 / (varianza_directo * coste_directo)
+```
+
+
+A continuación vamos a aplicar el método de las variables antitéticas para tratar de reducir la varianza de la estimación.
+
+```{r generacion-antiteticas}
+genera_valores_antiteticas <- function() {
+  runif(1)
+}
+
+
+g <- function(x) {
+  sqrt((1 - x^2))*x^2
+}
+```
+
+Ahora replicamos el proceso de generar valores antitéticos, aplicarles la función `g` a cada uno de ellos y calcular el promedio. Para que los resultados se puedan comparar con los del método directo, es necesario generar solo `n / 2` pares de valores antitéticos (para que se hayan generado `n` valores aleatorios en total). Haremos también uso del paquete `bench` para estimar el coste en tiempo del método, para poder así estimar su eficiencia a la hora de estimar el valor de la integral.
+
+```{r replicacion-antiteticas, warning=FALSE}
+coste_antiteticas <- bench::mark({ # para ver cuanto tarda
+  valores <- replicate(n / 2, {
+    valores_antiteticos <- genera_valores_antiteticas()
+    mean(g(valores_antiteticos)) # (xi + yi) / 2
+  })
+},
+iterations = 10,
+time_unit = "ms"
+)$median
+```
+
+Finalmente, estimamos el valor de la integral, la varianza de esa estimación y la eficiencia del método.
+
+No calculo IC ni nada porque aquí no me interesa, en el examen si tendremos que hacerlo.
+
+```{r estimacion-antiteticas}
+estimacion_antiteticas <- mean(valores)
+varianza_antiteticas <- var(valores) / (n / 2) # Cuasivar muestral
+eficiencia_antiteticas <- 1 / (varianza_antiteticas * coste_antiteticas)
+```
+
+
+
+La siguiente tabla compara los resultados obtenidos por el método directo de Montecarlo y por el método de las variables antitéticas.
+
+```{r tabla-de-resultados-antiteticas}
+knitr::kable(
+  data.frame(
+    `Método` = c("Directo", "Antitéticas"),
+    `Estimación` = c(estimacion_directo, estimacion_antiteticas),
+    Varianza = c(varianza_directo, varianza_antiteticas),
+    Coste = c(coste_directo, coste_antiteticas),
+    Eficiencia = c(eficiencia_directo, eficiencia_antiteticas)
+  ),
+  digits = 10
+)
+```
+
+Se puede observar cómo la varianza se reduce en un factor de 10, con un aumento del coste en tiempo que puede llegar a ser considerable. Además, se observa que el método de las antitéticas es menos eficiente que el directo.
+
+
+# Reducción de la varianza por Muestreo Estratificado:
+
+A continuación vamos a aplicar el método del muestreo estratificado para tratar de reducir la varianza de la estimación.
+
+
+```{r grafica-g.Est}
+library(ggplot2)
+
+ggplot2::ggplot() +
+  geom_function(fun = g) +
+  xlim(0, 1)
+```
+
+La representación gráfica de la función \( g \) muestra que unos estratos adecuados podrían ser los subintervalos \( (0, 4/5) \) y \( (4/5, 1) \).
+
+### Muestreo estratificado: asignación proporcional
+
+
+1. En primer lugar definimos los estratos y establecemos la forma de generar valores aleatorios dentro de cada estrato. Una manera simple de definir los estratos es subdividir el intervalo (0, 1) de forma independiente en cada dimensión.
+
+```{r generacion-Mest}
+estratos <- data.frame(
+  min = c(0, 4 / 5),
+  max = c(4/ 5, 1),
+  probabilidad = c(4 / 5, 1 / 5)
+)
+# Función que genera valores dentro de un estrato
+genera_valor_en_estrato <- function(numero_estrato) {
+  estrato <- estratos[numero_estrato, ]
+  runif(1, min = estrato$min, max = estrato$max)
+}
+```
+
+2. Ahora replicamos el proceso de generar valores en cada estrato, en una cantidad proporcional a su probabilidad, y aplicarles la función `g` a cada uno de ellos. Haremos también uso del paquete `bench` para estimar el coste en tiempo del método, para poder así estimar su eficiencia a la hora de estimar el valor de la integral.
+
+```{r replicacion-proporcionalMest, warning=FALSE}
+unidad_de_tiempo <- "ms"
+n_estratos <- n * estratos$probabilidad
+# Aseguramos valores enteros
+n_estratos <- ceiling(n_estratos)
+# Aseguramos al menos dos valores en cada estrato
+n_estratos <- pmax(n_estratos, 2)
+
+coste_estratificado_proporcional <- bench::mark(
+  {
+    valores <- lapply(
+      seq_len(2), # (1,2), aplico la función 2 veces, una para cada estrato
+      function(numero_estrato) {
+        replicate(n_estratos[numero_estrato], {
+          x <- genera_valor_en_estrato(numero_estrato)
+          g(x)
+        })
+      }
+    )
+  },
+  iterations = 10,
+  time_unit = unidad_de_tiempo
+)$median
+```
+
+Se han generado \( `r n_estratos[1]` \) valores en el primer estrato y \( `r n_estratos[2]` \) valores en el segundo estrato.
+
+3. Finalmente, estimamos el valor de la integral, la varianza de esa estimación y la eficiencia del método.
+
+```{r estimacion-proporcionalMest}
+estimacion_estratificado_proporcional <-
+  weighted.mean(
+    sapply(valores, mean),
+    estratos$probabilidad
+  )
+varianza_estratificado_proporcional <-
+  sum(estratos$probabilidad^2 * sapply(valores, var) / n_estratos)
+eficiencia_estratificado_proporcional <-
+  1 / (varianza_estratificado_proporcional *
+    coste_estratificado_proporcional)
+```
+
+
+### Muestreo estratificado: asignación óptima
+
+Consideramos los mismos estratos que antes y, por tanto, la misma forma de generar valores en cada uno de ellos.
+
+Ahora replicamos el proceso de generar en cada estrato una cantidad óptima de valores, determinada mediante un procedimiento en dos etapas, y aplicarles la función `g` a cada uno de ellos. Haremos también uso del paquete `bench` para estimar el coste en tiempo del método, para poder así estimar su eficiencia a la hora de estimar el valor de la integral.
+
+```{r replicacion-optimo, warning=FALSE}
+n_tanteo <- 100
+n_produccion <- n - n_tanteo # Para que la cantidad total de valores generados sea igual en los tres métodos y, por tanto, su comparación tenga sentido
+
+coste_estratificado_optimo <- bench::mark(
+  {
+    # Estimación de las varianzas de los estratos
+    n_estratos <- pmax(
+      ceiling(n_tanteo * estratos$probabilidad), # asignación proporcional para calcular la var
+      2
+    )
+    valores <- lapply(
+      seq_len(2),
+      function(numero_estrato) {
+        replicate(n_estratos[numero_estrato], {
+          x <- genera_valor_en_estrato(numero_estrato)
+          g(x)
+        })
+      }
+    )
+
+    # Cantidad óptima de valores en cada estrato
+    sigmas <- sapply(valores, sd)
+    n_estratos <-
+      pmax(
+        ceiling(n_produccion * estratos$probabilidad * sigmas /
+          sum(estratos$probabilidad * sigmas)),
+        2
+      )
+
+    # Generación de valores en cada estrato
+    valores <- lapply(
+      seq_len(2),
+      function(numero_estrato) {
+        replicate(n_estratos[numero_estrato], {
+          x <- genera_valor_en_estrato(numero_estrato)
+          g(x)
+        })
+      }
+    )
+  },
+  iterations = 10,
+  time_unit = unidad_de_tiempo
+)$median
+```
+
+Se han generado \( `r n_estratos[1]` \) valores en el primer estrato y \( `r n_estratos[2]` \) valores en el segundo estrato.
+
+Finalmente, estimamos el valor de la integral, la varianza de esa estimación y la eficiencia del método.
+
+```{r estimacion-optimo}
+estimacion_estratificado_optimo <-
+  weighted.mean(
+    sapply(valores, mean),
+    estratos$probabilidad
+  )
+varianza_estratificado_optimo <-
+  sum(estratos$probabilidad^2 * sapply(valores, var) / n_estratos)
+eficiencia_estratificado_optimo <-
+  1 / (varianza_estratificado_optimo *
+    coste_estratificado_optimo)
+```
+
+La siguiente tabla compara los resultados obtenidos por el método directo de Montecarlo y por el método del muestreo estratificado.
+
+```{r tabla-de-resultados-est}
+knitr::kable(
+  data.frame(
+    `Método` = c(
+      "Directo",
+      "Estratificado proporcional",
+      "Estratificado óptimo"
+    ),
+    `Estimación` = c(
+      estimacion_directo,
+      estimacion_estratificado_proporcional,
+      estimacion_estratificado_optimo
+    ),
+    Varianza = c(
+      varianza_directo,
+      varianza_estratificado_proporcional,
+      varianza_estratificado_optimo
+    ),
+    Coste = c(
+      coste_directo,
+      coste_estratificado_proporcional,
+      coste_estratificado_optimo
+    ),
+    Eficiencia = c(
+      eficiencia_directo,
+      eficiencia_estratificado_proporcional,
+      eficiencia_estratificado_optimo
+    )
+  ),
+  digits = 10
+)
+```
+
+Para este problema, la eficiencia del método del muestreo estratificado es mucho menor que la del método directo, ya que la reducción de varianza conseguida es anulada completamente por el aumento del coste en tiempo. En este caso, el Método Estratificado proporcional es mejor, ya que reduce la varianza en un factor de 10 y además es el que menor eficiencia tiene.
+
+
+# Reducción de la varianza por Muestreo por Importancia:
+
+
+A continuación vamos a aplicar el método del muestreo por importancia para tratar de reducir la varianza de la estimación.
+
+Buscamos una densidad instrumental con soporte al menos en el intervalo \( (0, 1) \) y que sea lo más parecida posible a la función \( |g(x)| f_{1}(x) \), donde \( f_{1} \) es la densidad de \( \mathrm{U}(0, 1) \). Puesto que la función de densidad de una distribución beta de parámetros \( \alpha \) y \( \beta \) es \( f_2(x) \propto x^{\alpha - 1} (1 - x)^{\beta - 1} \), con soporte en \( (0, 1) \), parece conveniente usar como densidad instrumental la de una distribución beta con \( \alpha = 3 \) y \( \beta = \frac{1}{2} + 1 = \frac{3}{2} \).
+
+```{r grafica-Imp}
+library(ggplot2)
+
+alfa <- 3
+beta <- 3 / 2
+ggplot(data.frame()) +
+  geom_function(fun = g, aes(colour = "g")) +
+  geom_function(fun = dunif, aes(colour = "unif")) +
+  geom_function(
+    fun = dbeta,
+    args = list(shape1 = alfa, shape2 = beta),
+    aes(colour = "beta")
+  ) +
+  scale_colour_manual("",
+    values = c(g = "black", unif = "blue", beta = "red"),
+    breaks = c("g", "unif", "beta")
+  ) +
+  xlim(0, 1)
+```
+
+En primer lugar, establecemos la forma de generar valores aleatorios, que ahora será a partir de la distribución beta escogida. Por otra parte, el producto de \( g \) por la razón de verosimilitud (es decir, el cociente entre la función de densidad de la distribución uniforme y la función de densidad de la distribución beta escogida) es el siguiente:
+
+Recuerda, la función de densidad de la distribución beta es la siguiente:
+
+$$X \sim \beta(\alpha,\beta), \quad f_X(x)= \dfrac{x^{\alpha-1}(1-x)^{\beta-1}}{B(\alpha,\beta)}$$
+
+Además,
+\[\quad B(\alpha,\beta)= \dfrac{\Gamma(\alpha)\Gamma(\beta)}{\Gamma(\alpha + \beta)}
+\]
+
+Por tanto:
+
+
+$$
+  g(x) \frac{1}{\frac{x^{3 - 1} (1 - x)^{3/2 - 1}}{B(3, 3/2)}}
+  = \frac{\Gamma(3) \Gamma(3/2)}{\Gamma(5/2)} {x^{3 - 1} (1 - x)^{3/2 - 1}}
+$$
+
+
+```{r generacion-Imp}
+genera_valor_aleatorio <- function() {
+  rbeta(1, shape1 = alfa, shape2 = beta)
+}
+
+g_por_verosimilitud <- function(x) {
+  (gamma(3)*gamma(3/2)/gamma(5/2))*(x^2)*(sqrt(1-x))
+}
+```
+
+A continuación, replicamos `n` veces el proceso de generación de valores. Haremos también uso del paquete `bench` para estimar el coste en tiempo del método, para poder así estimar su eficiencia a la hora de estimar el valor de la integral.
+
+```{r replicacion-Imp, warning=FALSE}
+coste_importancia <- bench::mark(
+  {
+    valores <- replicate(n, {
+      x <- genera_valor_aleatorio()
+      g_por_verosimilitud(x)
+    })
+  },
+  iterations = 10,
+  time_unit = unidad_de_tiempo
+)$median
+```
+
+Finalmente, estimamos el valor de la integral, la varianza de esa estimación y la eficiencia del método.
+
+```{r estimacion-Imp}
+estimacion_importancia <- mean(valores)
+varianza_importancia <- var(valores) / n
+eficiencia_importancia <- 1 / (varianza_importancia * coste_importancia)
+```
+
+La siguiente tabla compara los resultados obtenidos por el método directo de Montecarlo y por el método del muestreo por importancia.
+
+```{r tabla-de-resultados-Imp}
+knitr::kable(
+  data.frame(
+    `Método` = c(
+      "Directo",
+      "Importancia"
+    ),
+    `Estimación` = c(
+      estimacion_directo,
+      estimacion_importancia
+    ),
+    Varianza = c(
+      varianza_directo,
+      varianza_importancia
+    ),
+    Coste = c(
+      coste_directo,
+      coste_importancia
+    ),
+    Eficiencia = c(
+      eficiencia_directo,
+      eficiencia_importancia
+    )
+  ),
+  digits = 10
+)
+```
+
+Se puede observar cómo la varianza se reduce en un factor de \( 10 \), con solo un pequeño aumento del coste en tiempo y con un gran aumento en la eficiencia. Esto quiere decir que, escogiendo una densidad instrumental adecuada, el método del muestreo por importancia es más eficiente que el método directo cuando se trata de estimar el valor de \( I \).
+
+# Tabla general de resultados:
+
+```{r tabla-de-resultados-final}
+knitr::kable(
+  data.frame(
+    `Método` = c("Directo", "Antitéticas","Estratificado proporcional",
+      "Estratificado óptimo","Importancia"),
+    `Estimación` = c(estimacion_directo, estimacion_antiteticas,estimacion_estratificado_proporcional,
+      estimacion_estratificado_optimo,estimacion_importancia),
+    Varianza = c(varianza_directo, varianza_antiteticas,varianza_estratificado_proporcional,
+      varianza_estratificado_optimo,varianza_importancia),
+    Coste = c(coste_directo, coste_antiteticas,coste_estratificado_proporcional,
+      coste_estratificado_optimo,coste_importancia),
+    Eficiencia = c(eficiencia_directo, eficiencia_antiteticas,eficiencia_estratificado_proporcional,
+      eficiencia_estratificado_optimo,eficiencia_importancia)
+    
+  ),
+  digits = 10
+)
+```
+
+
+
+
+
+
+
+
+
