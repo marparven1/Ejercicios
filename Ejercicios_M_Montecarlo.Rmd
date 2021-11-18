@@ -931,13 +931,10 @@ Luego, un intervalo de confianza con probabilidad de cobertura 0.997 es
 Estimar el valor de: $$I =
   \int_{0}^{\infty} 
   \dfrac{e^{- \frac{x^2}{2}}}{\sqrt{x}}
-  \,dx \simeq  2.1558005
-$$
+  \,dx \simeq  2.1558005$$
 
 Para poder estimar la integral a partir de la generación de valores
-uniformes en $(0, 1)$ realizamos el siguiente cambio de variable: $$
-  x = \dfrac{1}{1-U} - 1
-$$
+uniformes en $(0, 1)$ realizamos el siguiente cambio de variable: $$x = \dfrac{1}{1-U} - 1$$
 
 Así, obtenemos la siguiente integral:
 
@@ -950,8 +947,7 @@ $$I =
   \, du = 
    \int_{0}^{1} 
   \dfrac{e^{- \frac{\big(\frac{1}{1-u}-1\big)^2}{2}}}{\sqrt{\frac{u}{1-u}}\cdot(1-u)^2}  
-  \, du 
-$$
+  \, du$$
 
 ## Definición de la función g
 
