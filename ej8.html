@@ -13,7 +13,7 @@
 <meta name="author" content="Marta Venegas Pardo" />
 
 
-<title>Ejercicio2</title>
+<title>Ejercicio 8</title>
 
 <script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
 
@@ -128,7 +128,7 @@ a.sourceLine {
 
 
 <section class="page-header">
-<h1 class="title toc-ignore project-name">Ejercicio2</h1>
+<h1 class="title toc-ignore project-name">Ejercicio 8</h1>
 <h4 class="author project-author">Marta Venegas Pardo</h4>
 <h4 class="date project-date">18/11/2021</h4>
 </section>
@@ -137,125 +137,131 @@ a.sourceLine {
 <div id="TOC" class="toc">
 <div class="toc-box">
 <ul>
-<li><a href="#reducción-de-varianza-por-antitéticas">Reducción de Varianza por Antitéticas</a></li>
+<li><a href="#estimación-del-valor-de-la-integral">Estimación del valor de la integral:</a>
+<ul>
+<li><a href="#reducción-de-la-varianza-por-antitéticas">Reducción de la varianza por antitéticas:</a></li>
+</ul></li>
 <li><a href="#reducción-de-la-varianza-por-muestreo-estratificado">Reducción de la varianza por Muestreo Estratificado:</a>
 <ul>
-<li><a href="#muestreo-estratificado-asignación-proporcional">Muestreo estratificado: asignación proporcional</a></li>
-<li><a href="#muestreo-estratificado-asignación-óptima">Muestreo estratificado: asignación óptima</a></li>
+<li><a href="#muestreo-estratificado-asignación-proporcional.">Muestreo estratificado: asignación proporcional.</a></li>
+</ul></li>
+<li><a href="#muestreo-estratificado-asignación-óptima">Muestreo estratificado: asignación óptima</a>
+<ul>
+<li><a href="#reducción-de-la-varianza-por-muestreo-por-importancia">Reducción de la varianza por Muestreo por Importancia:</a></li>
 </ul></li>
 </ul>
 </div>
 </div>
 
 <section class="main-content">
-<p>Estimarr el valor de: <span class="math display">\[I =
-  \int_{0}^{1} -30 \cos(\pi x) x^4 (1-x^4)  \,dx  \simeq 1,714716594386961\]</span></p>
-<p>Para estimar la primera integral mediante el método de Montecarlo, basta observar que <span class="math inline">\(I_{1} = \mathbb{E}[g(X)]\)</span>, donde <span class="math inline">\(X\)</span> es una variable uniforme en el intervalo <span class="math inline">\((0, 1)\)</span> y <span class="math inline">\(g(x) = \int_{0}^{1} x^{2}{\sqrt{1-x^{2}}} \mathop{}\!d x\)</span>.</p>
-<ol style="list-style-type: decimal">
-<li><p>Establecemos la forma de generar valores aleatorios, en este caso de manera uniforme en el intervalo <span class="math inline">\((0, 1)\)</span>.</p></li>
-<li><p>Definimos la función <span class="math inline">\(g\)</span> que deberá aplicarse a esos valores aleatorios.</p></li>
-</ol>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>genera_valor_aleatorio <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">runif</span>(<span class="dv">1</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>pi<span class="ot">&lt;-</span> pi</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>g<span class="ot">&lt;-</span> <span class="cf">function</span>(x){</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span><span class="dv">30</span> <span class="sc">*</span> <span class="fu">cos</span>(pi <span class="sc">*</span> x) <span class="sc">*</span> x<span class="sc">^</span><span class="dv">4</span> <span class="sc">*</span> (<span class="dv">1</span><span class="sc">-</span>x<span class="sc">^</span><span class="dv">4</span>)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<ol start="3" style="list-style-type: decimal">
-<li>Replicamos el proceso de generar un valor aleatorio y aplicarle la función <span class="math inline">\(g\)</span>. La variable <code>n</code> determina la cantidad de replicaciones.</li>
-</ol>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fl">1e6</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>valores_g <span class="ot">&lt;-</span> <span class="fu">replicate</span>(n , {</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">genera_valor_aleatorio</span>()</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">g</span>(x)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
-<ol start="4" style="list-style-type: decimal">
-<li>Calculamos una estimación de <span class="math inline">\(I_{1}\)</span> a partir de la media aritmética de los valores obtenidos.</li>
-</ol>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>estimacion <span class="ot">&lt;-</span> <span class="fu">mean</span>(valores_g)</span></code></pre></div>
-<p>El valor estimado de <span class="math inline">\(I\)</span> es <span class="math inline">\(1.7160588\)</span>. Este método siempre dará una aproximación, mejor o peor pero se trata de una aproximación.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">457367</span>)</span></code></pre></div>
+<p>Estimar el valor de: <span class="math display">\[I =\int_{0}^{1} \int_{-2}^{2} x^2 \cos(xy)    \,dx   \,dy .\]</span></p>
+<p>Tenemos que hacer un cambio de variables para tener ambos límites de la integral en (0,1)</p>
+<p>El cambio es el siguiente:</p>
+<ul>
+<li><span class="math inline">\(x=4u_1-2 \quad \implies dx = 4du_1\)</span></li>
+<li><span class="math inline">\(y=u_2\)</span>, puesto que no necesita cambiar los límites de intetración</li>
+</ul>
+<p>La integral queda de la siguiente forma:</p>
+<p><span class="math display">\[I_2 = 4 \int_{0}^{1} \int_{0}^{1} (4u_1-2)^2 \cos((4u_1-2)u_2)    \,du_1   \,du_2 .\]</span></p>
+<div id="estimación-del-valor-de-la-integral" class="section level1">
+<h1>Estimación del valor de la integral:</h1>
+<p>Para aplicar el método de Montecarlo, en primer lugar establecemos la forma de generar vectores aleatorios, en este caso de manera uniforme en el intervalo <span class="math inline">\((0, 1) \times (0, 1)\)</span>, y definimos la función <span class="math inline">\(g\)</span> que deberá aplicarse a esos vectores aleatorios.</p>
+<p>Es decir, <span class="math inline">\(I_{6} = \mathbb{E}[g(\vec{U})]\)</span>, donde <span class="math inline">\(\vec{U} = \big(U_{1}, U_{2}\big)\)</span> es un vector aleatorio uniforme en <span class="math inline">\((0, 1) \times (0, 1)\)</span> (equivalentemente, <span class="math inline">\(U_{1}\)</span> y <span class="math inline">\(U_{2}\)</span> son variables independientes uniformes en el intervalo <span class="math inline">\((0, 1)\)</span>) y <span class="math inline">\(g(u_{1}, u_{2}) = (4u_{1}-2)^2 \cos((4u_{1}-2)u_{2})\)</span>.</p>
+<p>Por tanto, para aplicar el método de Montecarlo, en primer lugar establecemos la forma de generar vectores aleatorios, en este caso de manera uniforme en el intervalo <span class="math inline">\((0, 1) \times (0, 1)\)</span>, y definimos la función <span class="math inline">\(g\)</span> que deberá aplicarse a esos vectores aleatorios.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creamos una función para generar números aleatorios (vectores de longitud 2).</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>genera_vector_aleatorio <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">runif</span>(<span class="dv">2</span>) <span class="co"># Función que genera dos números aleatorios uniformes(0,1)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Definimos la función bidimensional a la que le vamos a calcular la esperanza.</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="cf">function</span>(u) {</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Definimos las componentes del vector u.</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  u_1 <span class="ot">&lt;-</span> u[<span class="dv">1</span>]</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  u_2 <span class="ot">&lt;-</span> u[<span class="dv">2</span>]</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a> ( ((<span class="dv">4</span><span class="sc">*</span>u_1<span class="dv">-2</span>)<span class="sc">^</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fu">cos</span>((<span class="dv">4</span><span class="sc">*</span>u_1<span class="dv">-2</span>)<span class="sc">*</span>u_2) )</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>A continuación, replicamos el proceso de generar un vector aleatorio y aplicarle la función <span class="math inline">\(g\)</span>. La variable <code>n</code> determina la cantidad de replicaciones.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generamos n valores aletorios de una U[(0,1)X(0,1)] y los evaluamos en la función g(x1,x2).</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fl">1e5</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>valores_g <span class="ot">&lt;-</span> <span class="fu">replicate</span>(n, {</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  u <span class="ot">&lt;-</span> <span class="fu">genera_vector_aleatorio</span>()</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">g</span>(u)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<p>Finalmente, calculamos una estimación de <span class="math inline">\(I_{2}\)</span> a partir de la media aritmética de los valores obtenidos.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculamos la estimación que es lo que buscábamos.</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>estimacion <span class="ot">&lt;-</span> <span class="dv">4</span><span class="sc">*</span> <span class="fu">mean</span>(valores_g)</span></code></pre></div>
+<p>El valor estimado de <span class="math inline">\(I_{2}\)</span> es <span class="math inline">\(3.4651915\)</span>.</p>
 <p>Puesto que esto es un resultado aleatorio, hay que calcular siempre un intervalo de confianza que permita acotar la variabilidad de la estimación.</p>
-<ol start="5" style="list-style-type: decimal">
-<li>Intervalo de confianza</li>
-</ol>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>probabilidad_cobertura <span class="ot">&lt;-</span> <span class="fl">0.997</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>alfa <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> probabilidad_cobertura</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>percentil<span class="ot">&lt;-</span> <span class="fu">qnorm</span>(<span class="dv">1</span> <span class="sc">-</span> alfa <span class="sc">/</span> <span class="dv">2</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>error_estandar <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">var</span>(valores_g)<span class="sc">/</span>n)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>intervalo_confianza <span class="ot">&lt;-</span> estimacion <span class="sc">+</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">1</span>) <span class="sc">*</span> error_estandar <span class="sc">*</span> percentil</span></code></pre></div>
-<p>Luego, un intervalo de confianza con probabilidad de cobertura 0.997 es ( <span class="math inline">\(1.7088326, 1.7232851\)</span> )</p>
-<div id="reducción-de-varianza-por-antitéticas" class="section level1">
-<h1>Reducción de Varianza por Antitéticas</h1>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">457367</span>)</span></code></pre></div>
-<p>Cáculamos la varianza y la eficiencia del Método de Newton para compararlo con las demás varianzas y eficiencias.</p>
-<p>Estimaremos también el coste en tiempo del método haciendo uso de las herramientas proporcionadas por el paquete <code>bench</code> (en particular, la función <code>mark</code> analiza el coste en tiempo y en memoria de las expresiones proporcionadas, ejecutando cada una de ellas un cierto número de iteraciones y devolviendo una tabla con distintas medidas, entre ellas la mediana de los tiempos de ejecución de cada iteración). De esta forma, podremos estimar la eficiencia del método directo a la hora de estimar el valor de la integral.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>genera_valor_aleatorio <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">runif</span>(<span class="dv">1</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>pi<span class="ot">&lt;-</span> pi</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>g<span class="ot">&lt;-</span> <span class="cf">function</span>(x){</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span><span class="dv">30</span> <span class="sc">*</span> <span class="fu">cos</span>(pi <span class="sc">*</span> x) <span class="sc">*</span> x<span class="sc">^</span><span class="dv">4</span> <span class="sc">*</span> (<span class="dv">1</span><span class="sc">-</span>x<span class="sc">^</span><span class="dv">4</span>)</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fl">1e4</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>coste_directo <span class="ot">&lt;-</span> bench<span class="sc">::</span><span class="fu">mark</span>({</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  valores_g <span class="ot">&lt;-</span> <span class="fu">replicate</span>(n, {</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">genera_valor_aleatorio</span>()</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">g</span>(x)</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>},</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="at">iterations =</span> <span class="dv">10</span>,</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="at">time_unit =</span> <span class="st">&quot;ms&quot;</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>)<span class="sc">$</span>median</span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>estimacion_directo <span class="ot">&lt;-</span> <span class="fu">mean</span>(valores_g)</span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>varianza_directo <span class="ot">&lt;-</span> <span class="fu">var</span>(valores_g) <span class="sc">/</span> n</span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>eficiencia_directo <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> (varianza_directo <span class="sc">*</span> coste_directo)</span></code></pre></div>
-<p>A continuación vamos a aplicar el método de las variables antitéticas para tratar de reducir la varianza de la estimación.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>genera_valores_antiteticas <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  u<span class="ot">&lt;-</span><span class="fu">runif</span>(<span class="dv">1</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(u,<span class="dv">1</span><span class="sc">-</span>u)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculamos el IC paso a paso con un nivel de significación del 0.03.</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>probabilidad_cobertura <span class="ot">&lt;-</span> <span class="fl">0.997</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>alfa <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> probabilidad_cobertura</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>percentil <span class="ot">&lt;-</span> <span class="fu">qnorm</span>(<span class="dv">1</span> <span class="sc">-</span> alfa <span class="sc">/</span> <span class="dv">2</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>error_estandar <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">var</span>(valores_g) <span class="sc">/</span> n)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>intervalo_confianza <span class="ot">&lt;-</span> estimacion <span class="sc">+</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">*</span> error_estandar <span class="sc">*</span> percentil</span></code></pre></div>
+<p>Un intervalo de confianza con probabilidad de cobertura <span class="math inline">\(0.997\)</span> es <span class="math inline">\((3.4568142, 3.4735687)\)</span>.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span></code></pre></div>
+<div id="reducción-de-la-varianza-por-antitéticas" class="section level2">
+<h2>Reducción de la varianza por antitéticas:</h2>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>genera_vector_aleatorio <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">runif</span>(<span class="dv">2</span>) <span class="co"># Tamaño 2 (bidimensionales).</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>g<span class="ot">&lt;-</span> <span class="cf">function</span>(x){</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span><span class="dv">30</span> <span class="sc">*</span> <span class="fu">cos</span>(pi <span class="sc">*</span> x) <span class="sc">*</span> x<span class="sc">^</span><span class="dv">4</span> <span class="sc">*</span> (<span class="dv">1</span><span class="sc">-</span>x<span class="sc">^</span><span class="dv">4</span>)</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<p>Ahora replicamos el proceso de generar valores antitéticos, aplicarles la función <code>g</code> a cada uno de ellos y calcular el promedio. Para que los resultados se puedan comparar con los del método directo, es necesario generar solo <code>n / 2</code> pares de valores antitéticos (para que se hayan generado <code>n</code> valores aleatorios en total). Haremos también uso del paquete <code>bench</code> para estimar el coste en tiempo del método, para poder así estimar su eficiencia a la hora de estimar el valor de la integral.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>coste_antiteticas <span class="ot">&lt;-</span> bench<span class="sc">::</span><span class="fu">mark</span>({ <span class="co"># para ver cuanto tarda</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  valores <span class="ot">&lt;-</span> <span class="fu">replicate</span>(n <span class="sc">/</span> <span class="dv">2</span>, {</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    valores_antiteticos <span class="ot">&lt;-</span> <span class="fu">genera_valores_antiteticas</span>()</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">g</span>(valores_antiteticos)) <span class="co"># (xi + yi) / 2</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>},</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="at">iterations =</span> <span class="dv">10</span>,</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="at">time_unit =</span> <span class="st">&quot;ms&quot;</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>)<span class="sc">$</span>median</span></code></pre></div>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="cf">function</span>(u) {</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  u_1 <span class="ot">&lt;-</span> u[<span class="dv">1</span>]</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  u_2 <span class="ot">&lt;-</span> u[<span class="dv">2</span>]</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a> ( ((<span class="dv">4</span><span class="sc">*</span>u_1<span class="dv">-2</span>)<span class="sc">^</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fu">cos</span>((<span class="dv">4</span><span class="sc">*</span>u_1<span class="dv">-2</span>)<span class="sc">*</span>u_2) )</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fl">1e4</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>coste_directo <span class="ot">&lt;-</span> bench<span class="sc">::</span><span class="fu">mark</span>({</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  valores_g <span class="ot">&lt;-</span> <span class="fu">replicate</span>(n, {</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    u <span class="ot">&lt;-</span> <span class="fu">genera_vector_aleatorio</span>()</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">g</span>(u)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>},</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="at">iterations =</span> <span class="dv">10</span>,</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="at">time_unit =</span> <span class="st">&quot;s&quot;</span> <span class="co"># Unidad de tiempo en segundo.</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>)<span class="sc">$</span>median</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>estimacion_directo <span class="ot">&lt;-</span><span class="dv">4</span><span class="sc">*</span> <span class="fu">mean</span>(valores_g)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>varianza_directo <span class="ot">&lt;-</span> <span class="dv">16</span><span class="sc">*</span><span class="fu">var</span>(valores_g) <span class="sc">/</span> n</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>eficiencia_directo <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> (varianza_directo <span class="sc">*</span> coste_directo)</span></code></pre></div>
+<p>A continuación vamos a aplicar el método de las variables antitéticas para tratar de reducir la varianza de la estimación.</p>
+<p>Es inmediato comprobar que la función <span class="math inline">\(g\)</span> es creciente en cada uno de sus argumentos, por lo que el método de las variables antitéticas garantiza una reducción de varianza, aunque no que esta sea suficientemente grande.</p>
+<p>En primer lugar establecemos la forma de generar vectores aleatorios antitéticos. Por otra parte, para aplicar la función <span class="math inline">\(g\)</span> a cada uno de esos vectores nos apoyaremos en la función <code>apply</code> básica de R.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>genera_vectores_antiteticos <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  u <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">2</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbind</span>(u, <span class="dv">1</span> <span class="sc">-</span> u) <span class="co"># Como tabla, unidimensional era como vector.</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Ahora replicamos el proceso de generar vectores antitéticos, aplicarles la función <code>g</code> a cada uno de ellos y calcular el promedio. Para que los resultados se puedan comparar con los del método directo, es necesario generar solo <code>n / 2</code> pares de valores antitéticos (para que se hayan generado <code>n</code> valores aleatorios en total). Haremos también uso del paquete <code>bench</code> para estimar el coste en tiempo del método, para poder así estimar su eficiencia a la hora de estimar el valor de la integral.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>coste_antiteticas <span class="ot">&lt;-</span> bench<span class="sc">::</span><span class="fu">mark</span>({</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  valores <span class="ot">&lt;-</span> <span class="fu">replicate</span>(n <span class="sc">/</span> <span class="dv">2</span>, {</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    vectores_antiteticos <span class="ot">&lt;-</span> <span class="fu">genera_vectores_antiteticos</span>()</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">apply</span>(vectores_antiteticos, <span class="dv">1</span>, g)) <span class="co"># Tenemos que usar apply, ya que es una matriz de datos (2 a 2).</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># apply 1, es por filas</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>},</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="at">iterations =</span> <span class="dv">10</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="at">time_unit =</span> <span class="st">&quot;s&quot;</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>)<span class="sc">$</span>median</span></code></pre></div>
 <p>Finalmente, estimamos el valor de la integral, la varianza de esa estimación y la eficiencia del método.</p>
-<p>No calculo IC ni nada porque aquí no me interesa, en el examen si tendremos que hacerlo.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>estimacion_antiteticas <span class="ot">&lt;-</span> <span class="fu">mean</span>(valores)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>varianza_antiteticas <span class="ot">&lt;-</span> <span class="fu">var</span>(valores) <span class="sc">/</span> (n <span class="sc">/</span> <span class="dv">2</span>) <span class="co"># Cuasivar muestral</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>eficiencia_antiteticas <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> (varianza_antiteticas <span class="sc">*</span> coste_antiteticas)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>estimacion_antiteticas <span class="ot">&lt;-</span> <span class="dv">4</span><span class="sc">*</span><span class="fu">mean</span>(valores)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>varianza_antiteticas <span class="ot">&lt;-</span> <span class="dv">16</span><span class="sc">*</span>(<span class="fu">var</span>(valores) <span class="sc">/</span> (n <span class="sc">/</span> <span class="dv">2</span>))</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>eficiencia_antiteticas <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> (varianza_antiteticas <span class="sc">*</span> coste_antiteticas)</span></code></pre></div>
 <p>La siguiente tabla compara los resultados obtenidos por el método directo de Montecarlo y por el método de las variables antitéticas.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Método</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;Directo&quot;</span>, <span class="st">&quot;Antitéticas&quot;</span>),</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Estimación</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(estimacion_directo, estimacion_antiteticas),</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Varianza =</span> <span class="fu">c</span>(varianza_directo, varianza_antiteticas),</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Coste =</span> <span class="fu">c</span>(coste_directo, coste_antiteticas),</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Eficiencia =</span> <span class="fu">c</span>(eficiencia_directo, eficiencia_antiteticas)</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">10</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Método</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;Directo&quot;</span>, <span class="st">&quot;Antitéticas&quot;</span>),</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Estimación</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(estimacion_directo, estimacion_antiteticas),</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Varianza =</span> <span class="fu">c</span>(varianza_directo, varianza_antiteticas),</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Coste =</span> <span class="fu">c</span>(coste_directo, coste_antiteticas),</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Eficiencia =</span> <span class="fu">c</span>(eficiencia_directo, eficiencia_antiteticas)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">10</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -269,50 +275,63 @@ a.sourceLine {
 <tbody>
 <tr class="odd">
 <td align="left">Directo</td>
-<td align="right">1.725164</td>
-<td align="right">0.0005988803</td>
-<td align="right">73.64566</td>
-<td align="right">22.67320</td>
+<td align="right">3.452039</td>
+<td align="right">0.001280320</td>
+<td align="right">0.06673102</td>
+<td align="right">11704.521</td>
 </tr>
 <tr class="even">
 <td align="left">Antitéticas</td>
-<td align="right">1.710443</td>
-<td align="right">0.0002770521</td>
-<td align="right">64.28456</td>
-<td align="right">56.14769</td>
+<td align="right">3.472159</td>
+<td align="right">0.001333503</td>
+<td align="right">0.45470673</td>
+<td align="right">1649.205</td>
 </tr>
 </tbody>
 </table>
-<p>Se puede observar cómo la varianza se reduce en un factor de 10, con un aumento del coste en tiempo que puede llegar a ser considerable. Además, se observa que el método de las antitéticas es menos eficiente que el directo.</p>
+<p>Se puede observar cómo la varianza se reduce en un factor de <span class="math inline">\(10\)</span>, con solo un pequeño aumento del coste en tiempo y con un gran aumento en la eficiencia. Esto quiere decir que, escogiendo el método del las variables antitéticas es más eficiente que el método directo cuando se trata de estimar el valor de <span class="math inline">\(I\)</span>.</p>
+</div>
 </div>
 <div id="reducción-de-la-varianza-por-muestreo-estratificado" class="section level1">
 <h1>Reducción de la varianza por Muestreo Estratificado:</h1>
-<p>A continuación vamos a aplicar el método del muestreo estratificado para tratar de reducir la varianza de la estimación.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>ggplot2<span class="sc">::</span><span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_function</span>(<span class="at">fun =</span> g) <span class="sc">+</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="dv">0</span>, <span class="dv">1</span>)</span></code></pre></div>
-<p><img src="data:image/png;base64,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CCDgRwF9opE+uUg7HOklcitaPgu76jH++te/ypIlS2TSpEmFF/PdZgECUJvBORwCCCCAAAJ+FsjJyZE77rhDUlJS5J///Kctwafp3bVrV7nmmmvkySeflEOHDpmzeY+BAAFoDNA5JAIIIIAAAn4VGD16tHz//ffyyiuvSJUqVWxneOKJJyQzM1Oefvpp24/NAX8VIAD91YJPCCCAAAIIIGChwKJFi4wB5u+++27p1KmThUcKvuu6devKvffeK++//74sX748+IossVSAANRSXnaOAAIIIIAAAiqwf/9+43GZOi7nAw88EFOUESNGSJMmTeShhx6S06dPxzQtfj04AahfS558I4AAAgggYKPAPffcIydOnDAuvSckJNh45KKHSkpKkqeeesp45Ke2hDLZL0AAar85R0QAAQQQQMBXAtrZaN68eTJmzBjRS+BOmPQWgL59+xr3gmrrLJO9AgSg9npzNAQQQAABBHwlsGrVKmP4o5tvvll69OjhqLw/9thjor3y//KXvzgqXX5IDAGoH0qZPCKAAAIIIBADgdzcXOM+ywYNGsjjjz8egxSEPqQOTK+3BkyePFl0bFIm+wQIQO2z5kgIIIAAAgj4SmDChAmybNkyGTVqlJQpU8aReR88eLCRNn1SEpN9AgSg9llzJAQQQAABBHwjcOTIEePSu152v+yyyxyb7woVKsiNN94oH374odFJyrEJ9VjCCEA9VqBkBwEEEEAAAScIPPvss3L8+HFHXnov7DNs2DA5ePCgTJ06tfAivlskQABqESy7RQABBBBAwK8Cq1evlrffflvuuusux/R6D1UWzZs3l0suucRIc6j1WBY9AQLQ6FmyJwQQQAABBBA4I/DII48Ygecf/vAH13hoK6j22F+yZIlr0uzmhBKAurn0SDsCCCCAAAIOE9DL2IsXL5Ynn3zSsR2PApF1795d6tSpI2PHjg20mHlRFiAAjTIou0MAAQQQQMCvAnrPp46p2aVLF9GAzk1TfHy8DBkyRObMmSO7du1yU9JdmVYCUFcWG4lGAAEEEEDAeQLPP/+88cx3tw7sPnDgQElMTBQez2l93SIAtd6YIyCAAAIIIOB5gS1btsgbb7whv//976VRo0auzG96errxeE4NQLOyslyZB7ckmgDULSVFOhFAAAEEEHCwwHPPPSfly5eXu+++28GpLD5p2hlp3759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" /><!-- --></p>
-<p>La representación gráfica de la función <span class="math inline">\(g\)</span> muestra que unos estratos adecuados podrían ser los subintervalos <span class="math inline">\((0, 4/5)\)</span> y <span class="math inline">\((4/5, 1)\)</span>.</p>
-<div id="muestreo-estratificado-asignación-proporcional" class="section level2">
-<h2>Muestreo estratificado: asignación proporcional</h2>
-<ol style="list-style-type: decimal">
-<li>En primer lugar definimos los estratos y establecemos la forma de generar valores aleatorios dentro de cada estrato. Una manera simple de definir los estratos es subdividir el intervalo (0, 1) de forma independiente en cada dimensión.</li>
-</ol>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>estratos <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">min =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">4</span> <span class="sc">/</span> <span class="dv">5</span>),</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">max =</span> <span class="fu">c</span>(<span class="dv">4</span><span class="sc">/</span> <span class="dv">5</span>, <span class="dv">1</span>),</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">probabilidad =</span> <span class="fu">c</span>(<span class="dv">4</span> <span class="sc">/</span> <span class="dv">5</span>, <span class="dv">1</span> <span class="sc">/</span> <span class="dv">5</span>)</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Función que genera valores dentro de un estrato</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>genera_valor_en_estrato <span class="ot">&lt;-</span> <span class="cf">function</span>(numero_estrato) {</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  estrato <span class="ot">&lt;-</span> estratos[numero_estrato, ]</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">runif</span>(<span class="dv">1</span>, <span class="at">min =</span> estrato<span class="sc">$</span>min, <span class="at">max =</span> estrato<span class="sc">$</span>max)</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<ol start="2" style="list-style-type: decimal">
-<li>Ahora replicamos el proceso de generar valores en cada estrato, en una cantidad proporcional a su probabilidad, y aplicarles la función <code>g</code> a cada uno de ellos. Haremos también uso del paquete <code>bench</code> para estimar el coste en tiempo del método, para poder así estimar su eficiencia a la hora de estimar el valor de la integral.</li>
-</ol>
+<div id="muestreo-estratificado-asignación-proporcional." class="section level2">
+<h2>Muestreo estratificado: asignación proporcional.</h2>
+<p>En primer lugar definimos los estratos y establecemos la forma de generar valores aleatorios dentro de cada estrato. Una manera simple de definir los estratos es subdividir el intervalo <span class="math inline">\((0, 1)\)</span> de forma independiente en cada dimensión.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>genera_subintervalos <span class="ot">&lt;-</span> <span class="cf">function</span>(numero_subintervalos) {</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  extremos_derechos <span class="ot">&lt;-</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">seq_len</span>(numero_subintervalos) <span class="sc">/</span> numero_subintervalos</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  extremos_izquierdos <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, extremos_derechos[<span class="sc">-</span>numero_subintervalos])</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">min =</span> extremos_izquierdos,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">max =</span> extremos_derechos</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Como en cada dimensión se va a considerar el mismo número de</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co"># subintervalos, basta guardar la información una única vez</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>numero_subintervalos <span class="ot">&lt;-</span> <span class="dv">5</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>subintervalos <span class="ot">&lt;-</span> <span class="fu">genera_subintervalos</span>(numero_subintervalos)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Los estratos vienen dados por todas las combinaciones posibles</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>estratos <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">seq_len</span>(numero_subintervalos), <span class="co"># u1</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">seq_len</span>(numero_subintervalos) <span class="co"># u2</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>cantidad_estratos <span class="ot">&lt;-</span> <span class="fu">nrow</span>(estratos)</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>estratos<span class="sc">$</span>probabilidad <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> cantidad_estratos</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>genera_valor_en_estrato <span class="ot">&lt;-</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  <span class="cf">function</span>(numero_estrato) {</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    numero_estrato_u_1 <span class="ot">&lt;-</span> estratos[numero_estrato, <span class="dv">1</span>] <span class="co"># u1</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>    numero_estrato_u_2 <span class="ot">&lt;-</span> estratos[numero_estrato, <span class="dv">2</span>] <span class="co"># u2</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>    estrato_u_1 <span class="ot">&lt;-</span> subintervalos[numero_estrato_u_1, ]</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    estrato_u_2 <span class="ot">&lt;-</span> subintervalos[numero_estrato_u_2, ]</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>      <span class="fu">runif</span>(<span class="dv">1</span>, <span class="at">min =</span> estrato_u_1<span class="sc">$</span>min, <span class="at">max =</span> estrato_u_1<span class="sc">$</span>max), <span class="co"># Genero UN valor en el estrato 1</span></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>      <span class="fu">runif</span>(<span class="dv">1</span>, <span class="at">min =</span> estrato_u_2<span class="sc">$</span>min, <span class="at">max =</span> estrato_u_2<span class="sc">$</span>max)  <span class="co"># Genero UN valor en el estrato 2</span></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div>
+<p>Ahora replicamos el proceso de generar valores en cada estrato, en una cantidad proporcional a su probabilidad, y aplicarles la función <code>g</code> a cada uno de ellos. Haremos también uso del paquete <code>bench</code> para estimar el coste en tiempo del método, para poder así estimar su eficiencia a la hora de estimar el valor de la integral.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>unidad_de_tiempo <span class="ot">&lt;-</span> <span class="st">&quot;ms&quot;</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>n_estratos <span class="ot">&lt;-</span> n <span class="sc">*</span> estratos<span class="sc">$</span>probabilidad</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Aseguramos valores enteros</span></span>
@@ -323,11 +342,11 @@ a.sourceLine {
 <span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>coste_estratificado_proporcional <span class="ot">&lt;-</span> bench<span class="sc">::</span><span class="fu">mark</span>(</span>
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  {</span>
 <span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    valores <span class="ot">&lt;-</span> <span class="fu">lapply</span>(</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">seq_len</span>(<span class="dv">2</span>), <span class="co"># (1,2), aplico la función 2 veces, una para cada estrato</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">seq_len</span>(cantidad_estratos),</span>
 <span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>      <span class="cf">function</span>(numero_estrato) {</span>
 <span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">replicate</span>(n_estratos[numero_estrato], {</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>          x <span class="ot">&lt;-</span> <span class="fu">genera_valor_en_estrato</span>(numero_estrato)</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>          <span class="fu">g</span>(x)</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>          u <span class="ot">&lt;-</span> <span class="fu">genera_valor_en_estrato</span>(numero_estrato)</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>          <span class="fu">g</span>(u)</span>
 <span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>        })</span>
 <span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>      }</span>
 <span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    )</span>
@@ -335,77 +354,77 @@ a.sourceLine {
 <span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">iterations =</span> <span class="dv">10</span>,</span>
 <span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">time_unit =</span> unidad_de_tiempo</span>
 <span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>)<span class="sc">$</span>median</span></code></pre></div>
-<p>Se han generado <span class="math inline">\(8000\)</span> valores en el primer estrato y <span class="math inline">\(2000\)</span> valores en el segundo estrato.</p>
-<ol start="3" style="list-style-type: decimal">
-<li>Finalmente, estimamos el valor de la integral, la varianza de esa estimación y la eficiencia del método.</li>
-</ol>
+<p>Finalmente, estimamos el valor de la integral, la varianza de esa estimación y la eficiencia del método.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>estimacion_estratificado_proporcional <span class="ot">&lt;-</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">weighted.mean</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a> <span class="dv">4</span><span class="sc">*</span> <span class="fu">weighted.mean</span>(</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sapply</span>(valores, mean),</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    estratos<span class="sc">$</span>probabilidad</span>
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>varianza_estratificado_proporcional <span class="ot">&lt;-</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(estratos<span class="sc">$</span>probabilidad<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">sapply</span>(valores, var) <span class="sc">/</span> n_estratos)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="dv">16</span><span class="sc">*</span> ( <span class="fu">sum</span>(estratos<span class="sc">$</span>probabilidad<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">sapply</span>(valores, var) <span class="sc">/</span> n_estratos))</span>
 <span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>eficiencia_estratificado_proporcional <span class="ot">&lt;-</span></span>
 <span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span> <span class="sc">/</span> (varianza_estratificado_proporcional <span class="sc">*</span></span>
 <span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    coste_estratificado_proporcional)</span></code></pre></div>
 </div>
-<div id="muestreo-estratificado-asignación-óptima" class="section level2">
-<h2>Muestreo estratificado: asignación óptima</h2>
+</div>
+<div id="muestreo-estratificado-asignación-óptima" class="section level1">
+<h1>Muestreo estratificado: asignación óptima</h1>
 <p>Consideramos los mismos estratos que antes y, por tanto, la misma forma de generar valores en cada uno de ellos.</p>
 <p>Ahora replicamos el proceso de generar en cada estrato una cantidad óptima de valores, determinada mediante un procedimiento en dos etapas, y aplicarles la función <code>g</code> a cada uno de ellos. Haremos también uso del paquete <code>bench</code> para estimar el coste en tiempo del método, para poder así estimar su eficiencia a la hora de estimar el valor de la integral.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>n_tanteo <span class="ot">&lt;-</span> <span class="dv">100</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>n_produccion <span class="ot">&lt;-</span> n <span class="sc">-</span> n_tanteo <span class="co"># Para que la cantidad total de valores generados sea igual en los tres métodos y, por tanto, su comparación tenga sentido</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>coste_estratificado_optimo <span class="ot">&lt;-</span> bench<span class="sc">::</span><span class="fu">mark</span>(</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  {</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Estimación de las varianzas de los estratos</span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    n_estratos <span class="ot">&lt;-</span> <span class="fu">pmax</span>(</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ceiling</span>(n_tanteo <span class="sc">*</span> estratos<span class="sc">$</span>probabilidad), <span class="co"># asignación proporcional para calcular la var</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>      <span class="dv">2</span></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    valores <span class="ot">&lt;-</span> <span class="fu">lapply</span>(</span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">seq_len</span>(<span class="dv">2</span>),</span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>      <span class="cf">function</span>(numero_estrato) {</span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>        <span class="fu">replicate</span>(n_estratos[numero_estrato], {</span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>          x <span class="ot">&lt;-</span> <span class="fu">genera_valor_en_estrato</span>(numero_estrato)</span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>          <span class="fu">g</span>(x)</span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>        })</span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Cantidad óptima de valores en cada estrato</span></span>
-<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    sigmas <span class="ot">&lt;-</span> <span class="fu">sapply</span>(valores, sd)</span>
-<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>    n_estratos <span class="ot">&lt;-</span></span>
-<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>      <span class="fu">pmax</span>(</span>
-<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>        <span class="fu">ceiling</span>(n_produccion <span class="sc">*</span> estratos<span class="sc">$</span>probabilidad <span class="sc">*</span> sigmas <span class="sc">/</span></span>
-<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>          <span class="fu">sum</span>(estratos<span class="sc">$</span>probabilidad <span class="sc">*</span> sigmas)),</span>
-<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>        <span class="dv">2</span></span>
-<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Generación de valores en cada estrato</span></span>
-<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>    valores <span class="ot">&lt;-</span> <span class="fu">lapply</span>(</span>
-<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>      <span class="fu">seq_len</span>(<span class="dv">2</span>),</span>
-<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>      <span class="cf">function</span>(numero_estrato) {</span>
-<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>        <span class="fu">replicate</span>(n_estratos[numero_estrato], {</span>
-<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>          x <span class="ot">&lt;-</span> <span class="fu">genera_valor_en_estrato</span>(numero_estrato)</span>
-<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>          <span class="fu">g</span>(x)</span>
-<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>        })</span>
-<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a>  },</span>
-<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">iterations =</span> <span class="dv">10</span>,</span>
-<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">time_unit =</span> unidad_de_tiempo</span>
-<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a>)<span class="sc">$</span>median</span></code></pre></div>
-<p>Se han generado <span class="math inline">\(7506\)</span> valores en el primer estrato y <span class="math inline">\(2395\)</span> valores en el segundo estrato.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>n_tanteo <span class="ot">&lt;-</span> <span class="dv">50</span> <span class="sc">*</span> cantidad_estratos <span class="co"># para estimar la varianza</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>n_produccion <span class="ot">&lt;-</span> n <span class="sc">-</span> n_tanteo <span class="co"># Para que la cantidad total de valores</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># generados sea igual en los tres métodos</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># y, por tanto, su comparación tenga sentido</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>coste_estratificado_optimo <span class="ot">&lt;-</span> bench<span class="sc">::</span><span class="fu">mark</span>(</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  {</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Estimación de las varianzas de los estratos</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    n_estratos <span class="ot">&lt;-</span> <span class="fu">pmax</span>(</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ceiling</span>(n_tanteo <span class="sc">*</span> estratos<span class="sc">$</span>probabilidad), <span class="co"># asignación proporcional </span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>                                                 <span class="co"># para estimar la varianza</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>      <span class="dv">2</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    valores <span class="ot">&lt;-</span> <span class="fu">lapply</span>( <span class="co"># para estiamr la varianza</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>      <span class="fu">seq_len</span>(cantidad_estratos),</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>      <span class="cf">function</span>(numero_estrato) {</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>        <span class="fu">replicate</span>(n_estratos[numero_estrato], {</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>          u <span class="ot">&lt;-</span> <span class="fu">genera_valor_en_estrato</span>(numero_estrato)</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>          <span class="fu">g</span>(u)</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Cantidad óptima de valores en cada estrato</span></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>    sigmas <span class="ot">&lt;-</span> <span class="fu">sapply</span>(valores, sd)</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>    n_estratos <span class="ot">&lt;-</span></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>      <span class="fu">pmax</span>(</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>        <span class="fu">ceiling</span>(n_produccion <span class="sc">*</span> estratos<span class="sc">$</span>probabilidad <span class="sc">*</span> sigmas <span class="sc">/</span></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>          <span class="fu">sum</span>(estratos<span class="sc">$</span>probabilidad <span class="sc">*</span> sigmas)),</span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>        <span class="dv">2</span></span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Generación de valores en cada estrato</span></span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>    valores <span class="ot">&lt;-</span> <span class="fu">lapply</span>(</span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>      <span class="fu">seq_len</span>(cantidad_estratos),</span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>      <span class="cf">function</span>(numero_estrato) {</span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>        <span class="fu">replicate</span>(n_estratos[numero_estrato], {</span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a>          u <span class="ot">&lt;-</span> <span class="fu">genera_valor_en_estrato</span>(numero_estrato)</span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>          <span class="fu">g</span>(u)</span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">iterations =</span> <span class="dv">10</span>,</span>
+<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">time_unit =</span> unidad_de_tiempo</span>
+<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a>)<span class="sc">$</span>median</span></code></pre></div>
 <p>Finalmente, estimamos el valor de la integral, la varianza de esa estimación y la eficiencia del método.</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>estimacion_estratificado_optimo <span class="ot">&lt;-</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">weighted.mean</span>(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">4</span><span class="sc">*</span> <span class="fu">weighted.mean</span>( <span class="co"># mu_gorro</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sapply</span>(valores, mean),</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    estratos<span class="sc">$</span>probabilidad</span>
 <span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>varianza_estratificado_optimo <span class="ot">&lt;-</span></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(estratos<span class="sc">$</span>probabilidad<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">sapply</span>(valores, var) <span class="sc">/</span> n_estratos)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>varianza_estratificado_optimo <span class="ot">&lt;-</span> <span class="co"># varianza(mu_gorro)</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="dv">16</span><span class="sc">*</span>   <span class="fu">sum</span>(estratos<span class="sc">$</span>probabilidad<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> <span class="fu">sapply</span>(valores, var) <span class="sc">/</span> n_estratos)</span>
 <span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>eficiencia_estratificado_optimo <span class="ot">&lt;-</span></span>
 <span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span> <span class="sc">/</span> (varianza_estratificado_optimo <span class="sc">*</span></span>
 <span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    coste_estratificado_optimo)</span></code></pre></div>
@@ -453,28 +472,31 @@ a.sourceLine {
 <tbody>
 <tr class="odd">
 <td align="left">Directo</td>
-<td align="right">1.725164</td>
-<td align="right">0.0005988803</td>
-<td align="right">73.64566</td>
-<td align="right">22.673200</td>
+<td align="right">3.452039</td>
+<td align="right">0.0012803202</td>
+<td align="right">6.673102e-02</td>
+<td align="right">11704.520907</td>
 </tr>
 <tr class="even">
 <td align="left">Estratificado proporcional</td>
-<td align="right">1.701575</td>
-<td align="right">0.0002675689</td>
-<td align="right">878.16700</td>
-<td align="right">4.255859</td>
+<td align="right">3.511475</td>
+<td align="right">0.0002286759</td>
+<td align="right">1.535694e+03</td>
+<td align="right">2.847573</td>
 </tr>
 <tr class="odd">
 <td align="left">Estratificado óptimo</td>
-<td align="right">1.722472</td>
-<td align="right">0.0002739369</td>
-<td align="right">1775.61853</td>
-<td align="right">2.055890</td>
+<td align="right">3.494641</td>
+<td align="right">0.0001957933</td>
+<td align="right">2.320219e+03</td>
+<td align="right">2.201269</td>
 </tr>
 </tbody>
 </table>
-<p>Para este problema, la eficiencia del método del muestreo estratificado es mucho menor que la del método directo, ya que la reducción de varianza conseguida es anulada completamente por el aumento del coste en tiempo. En este caso, el Método Estratificado proporcional es mejor, ya que reduce la varianza en un factor de 10 y además es el que menor eficiencia tiene.</p>
+<p>Para este problema, la eficiencia del método del muestreo estratificado es mucho menor la del método directo, ya que la reducción de varianza conseguida es anulada completamente por el aumento del coste en tiempo. En este caso, el Método Estratificado óptimo es mejor, ya que reduce la varianza en un factor de 10 y además es el que menor eficiencia tiene.</p>
+<div id="reducción-de-la-varianza-por-muestreo-por-importancia" class="section level2">
+<h2>Reducción de la varianza por Muestreo por Importancia:</h2>
+<p>No se como hallar la f2.</p>
 </div>
 </div>
 </section>

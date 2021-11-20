@@ -88,6 +88,11 @@ Luego, un intervalo de confianza con probabilidad de cobertura 0.997 es
 # Reducción de Varianza por Antitéticas
 
 
+```{r}
+rm(list = ls())
+set.seed(457367)
+```
+
 Cáculamos la varianza y la eficiencia del Método de Newton para compararlo con las demás varianzas y eficiencias.
 
 Estimaremos también el coste en tiempo del método haciendo uso de las herramientas proporcionadas por el paquete `bench` (en particular, la función `mark` analiza el coste en tiempo y en memoria de las expresiones proporcionadas, ejecutando cada una de ellas un cierto número de iteraciones y devolviendo una tabla con distintas medidas, entre ellas la mediana de los tiempos de ejecución de cada iteración). De esta forma, podremos estimar la eficiencia del método directo a la hora de estimar el valor de la integral.
@@ -96,10 +101,11 @@ Estimaremos también el coste en tiempo del método haciendo uso de las herramie
 genera_valor_aleatorio <- function() {
   runif(1)
 }
-
+# la defino porq la he borrado
 g <- function(x) {
-  (x^2)*(sqrt(1 - x^2))
+  sqrt((1 - x^2))*x^2
 }
+
 
 n <- 1e4
 coste_directo <- bench::mark({
@@ -123,7 +129,8 @@ A continuación vamos a aplicar el método de las variables antitéticas para tr
 
 ```{r generacion-antiteticas}
 genera_valores_antiteticas <- function() {
-  runif(1)
+  u<-runif(1)
+  c(u,1-u)
 }
 
 
