@@ -29,7 +29,7 @@ Estimar el valor de: $$I =
 
 
 
-
+# Montecarlo
 
 
 
@@ -93,6 +93,9 @@ Luego, un intervalo de confianza con probabilidad de cobertura 0.997 es
 ( $`r intervalo_confianza`$ )
 
 
+
+
+
 # Reducción de Varianza por Antitéticas
 
 
@@ -100,12 +103,12 @@ Cáculamos la varianza y la eficiencia del Método de Newton para compararlo con
 
 Estimaremos también el coste en tiempo del método haciendo uso de las herramientas proporcionadas por el paquete `bench` (en particular, la función `mark` analiza el coste en tiempo y en memoria de las expresiones proporcionadas, ejecutando cada una de ellas un cierto número de iteraciones y devolviendo una tabla con distintas medidas, entre ellas la mediana de los tiempos de ejecución de cada iteración). De esta forma, podremos estimar la eficiencia del método directo a la hora de estimar el valor de la integral.
 
+
 ```{r Montecarlo-directo, warning=FALSE}
 genera_valor_aleatorio <- function() {
   runif(1)
 }
 
-pi<- pi
 g<- function(x){
   ( exp(-(x^2)/(2)))/(sqrt(x*(1-x)))
 }
@@ -130,15 +133,26 @@ eficiencia_directo <- 1 / (varianza_directo * coste_directo)
 
 A continuación vamos a aplicar el método de las variables antitéticas para tratar de reducir la varianza de la estimación.
 
+
+
+Lo representamos la función
+
+```{r}
+library(ggplot2)
+
+ggplot2::ggplot() +
+  geom_function(fun = g) +
+  xlim(0, 1)
+```
+
+
+Al representar gráficamente la función \(g\), podemos comprobar que es una función ni es creciente ni decreciente, por lo que el método de las variables antitéticas no nos garantiza una reducción de varianza. Se aplica el método igualmente para ver los resultados.
+
+En primer lugar establecemos la forma de generar valores aleatorios antitéticos. Por otra parte, la definición actual de la función \(g\) la convierte en una función vectorizada, por lo que para aplicarla a cada valor basta con aplicarla al vector generado.
+
 ```{r generacion-antiteticas}
 genera_valores_antiteticas <- function() {
   runif(1)
-}
-
-
-
-g<- function(x){
-  ( exp(-(x^2)/(2)))/(sqrt(x*(1-x)))
 }
 ```
 
@@ -371,3 +385,7 @@ knitr::kable(
 Para este problema, la eficiencia del método del muestreo estratificado es mucho menor que la del método directo, ya que la reducción de varianza conseguida es anulada completamente por el aumento del coste en tiempo. En este caso, el Método Estratificado proporcional es mejor, ya que reduce la varianza en un factor de 10 y además es el que menor eficiencia tiene.
 
 
+
+## Muestreo por Importancia
+
+No se hayar la densidad f2
